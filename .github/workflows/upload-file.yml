@@ -1,0 +1,44 @@
+name: "Submit file to code inputs"
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Url to sent file'
+        required: true
+        default: 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input'
+        type: string
+      file:
+        description: 'File that will be sent'
+        required: true
+        default: 'pom.xml'
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  post-file:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: REST API with curl to pixee
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL_PIXEE: ${{ github.event.inputs.url }}/${{ github.repository }}/${{github.sha}}/sonar
+          FILE_PATH: ${{ github.event.inputs.file }}
+        run: |
+          echo "$URL_PIXEE"
+          echo "$FILE_PATH"
+          SECRET=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://app.pixee.ai" | jq -j '.value')
+          API_RESPONSE=$(curl -v -X PUT -H "Authorization: Bearer $SECRET" -H "Content-Type: multipart/form-data" -F "file=@$FILE_PATH" $URL_PIXEE)
+          echo "$API_RESPONSE"
+
+           
