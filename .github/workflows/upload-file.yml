@@ -1,6 +1,8 @@
 name: "Submit file to code inputs"
 
 on:
+  pull_request:
+    types: [opened]
   workflow_dispatch:
     inputs:
       url:
@@ -11,7 +13,7 @@ on:
       file:
         description: 'File that will be sent'
         required: true
-        default: 'pom.xml'
+        default: 'README.md'
         type: string
 
 permissions:
@@ -32,13 +34,27 @@ jobs:
       - name: REST API with curl to pixee
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          URL_PIXEE: ${{ github.event.inputs.url }}/${{ github.repository }}/${{github.sha}}/sonar
-          FILE_PATH: ${{ github.event.inputs.file }}
+          URL_PIXEE_UPLOAD: ${{ github.event.inputs.url || 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input' }}/${{ github.repository }}/${{github.sha}}/sonar
+          URL_PIXEE_TRIGGER: ${{ github.event.inputs.url || 'https://d22balbl18.execute-api.us-east-1.amazonaws.com/prod/analysis-input' }}/${{ github.repository }}/${{ github.event.number }}
+          FILE_PATH: ${{ github.event.inputs.file || 'README.md' }}
         run: |
-          echo "$URL_PIXEE"
+          echo "$URL_PIXEE_UPLOAD"
+          echo "$URL_PIXEE_TRIGGER"
           echo "$FILE_PATH"
+          
           SECRET=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://app.pixee.ai" | jq -j '.value')
-          API_RESPONSE=$(curl -v -X PUT -H "Authorization: Bearer $SECRET" -H "Content-Type: multipart/form-data" -F "file=@$FILE_PATH" $URL_PIXEE)
-          echo "$API_RESPONSE"
+          API_RESPONSE=$(curl -w "%{http_code}" -s -o /dev/null -X PUT -H "Authorization: Bearer $SECRET" -H "Content-Type: multipart/form-data" -F "file=@$FILE_PATH" $URL_PIXEE_UPLOAD)
+          if [ $API_RESPONSE == 204 ]; then
+          echo "File uploaded"
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+          echo "Call trigger"
+          TRIGGER_RESPONSE=$(curl -w "%{http_code}" -s -o /dev/null -X POST -H "Authorization: Bearer $SECRET" $URL_PIXEE_TRIGGER)
+          echo "Response of trigger action : $TRIGGER_RESPONSE"
+          else
+          echo "Manual trigger cannot trigger an analysis"
+          fi
+          else
+          echo "File was not uploaded correctly is an unknown event"
+          fi
 
            
