@@ -42,7 +42,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
               with:
-                  projectBaseDir: my-custom-directory
+                  projectBaseDir: .
                   args: >
                       -Dsonar.organization=fjpgtt
                       -Dsonar.projectKey=fjpgtt_test-sonar-cloud-integration
