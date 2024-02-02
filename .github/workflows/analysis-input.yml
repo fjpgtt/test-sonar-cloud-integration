@@ -2,8 +2,7 @@ name: Upload file and trigger analysis
 
 on:
     pull_request:
-        types:
-            - opened
+        types: [opened]
     workflow_dispatch:
         inputs:
             file:
