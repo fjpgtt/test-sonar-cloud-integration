@@ -24,11 +24,17 @@ on:
                 required: false
                 type: number
 
+permissions:
+    contents: read
+    id-token: write
+
+env:
+    SONAR_ORGANIZATION: fjpgtt
+    SONAR_PROJECT_KEY: fjpgtt_test-sonar-cloud-integration
+
 jobs:
     analysis-input:
-        permissions:
-            contents: read
-            id-token: write
+
         runs-on: ubuntu-latest
         name: Upload file and trigger analysis
         timeout-minutes: 4
@@ -43,14 +49,14 @@ jobs:
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
               with:
                   args: >
-                      -Dsonar.organization=fjpgtt
-                      -Dsonar.projectKey=fjpgtt_test-sonar-cloud-integration
+                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             - name: SonarCloud download
               shell: bash
               run: |
-                  URL="https://sonarcloud.io/api/issues/search?componentKeys=fjpgtt_test-sonar-cloud-integration&pullRequest=${{ github.event.number || github.event.inputs.pr-number }}"
-                  curl -v "$URL" -o sonar_issues.json
-                  cat sonar_issues.json
+                  URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number || github.event.inputs.pr-number }}"
+                  curl -v "$URL" -o ${{ github.event.inputs.file || 'sonar_issues.json' }}
+                  cat ${{ github.event.inputs.file || 'sonar_issues.json' }}
             - name: Upload file and trigger analysis
               uses: JesusCotlamee/pixee-actions/analysis-input@main
               with:
