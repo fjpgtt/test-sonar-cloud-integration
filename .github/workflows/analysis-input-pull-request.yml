@@ -1,0 +1,42 @@
+name: Upload file and trigger analysis - pull request
+
+on:
+    pull_request:
+        types: [opened, reopened]
+
+permissions:
+    contents: read
+    id-token: write
+
+env:
+    SONAR_ORGANIZATION: fjpgtt
+    SONAR_PROJECT_KEY: fjpgtt_test-sonar-cloud-integration
+
+jobs:
+    analysis-input:
+        runs-on: ubuntu-latest
+        name: Upload file and trigger analysis
+        timeout-minutes: 4
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+            - name: SonarCloud Scan
+              uses: sonarsource/sonarcloud-github-action@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              with:
+                  args: >
+                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            - name: SonarCloud download
+              shell: bash
+              run: |
+                  URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
+                  curl -v "$URL" -o sonar_issues.json
+            - name: Upload file and trigger analysis
+              uses: JesusCotlamee/pixee-actions/analysis-input@main
+              with:
+                  FILE: 'sonar_issues.json'
+                  TOOL: 'sonar'
