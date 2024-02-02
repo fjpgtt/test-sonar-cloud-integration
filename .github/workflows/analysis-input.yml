@@ -48,7 +48,7 @@ jobs:
             - name: SonarCloud download
               shell: bash
               run: |
-                  URL="https://sonarcloud.io/api/issues/search?componentKeys=fjpgtt_test-sonar-cloud-integration&pullRequest=${{ github.event.number }}"
+                  URL="https://sonarcloud.io/api/issues/search?componentKeys=fjpgtt_test-sonar-cloud-integration&pullRequest=${{ github.event.number || github.event.inputs.pr-number }}"
                   curl -v "$URL" -o sonar_issues.json
                   cat sonar_issues.json
             - name: Upload file and trigger analysis
