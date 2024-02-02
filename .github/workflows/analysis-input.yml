@@ -1,0 +1,43 @@
+name: Upload file and trigger analysis
+
+on:
+    pull_request:
+        types:
+            - opened
+    workflow_dispatch:
+        inputs:
+            file:
+                description: File that will be sent
+                required: true
+                default: 'sonar-report.json'
+                type: string
+            tool:
+                type: choice
+                description: >
+                    Specific property identifying the tool or service related to the uploaded file.
+                    Allowed values: 'sonar', 'codeql', 'semgrep'
+                options:
+                    - sonar
+                    - codeql
+                    - semgrep
+            pr-number:
+                description: PR number to trigger analysis for.
+                required: false
+                type: number
+
+jobs:
+    analysis-input:
+        permissions:
+            contents: read
+            id-token: write
+        runs-on: ubuntu-latest
+        name: Upload file and trigger analysis
+        timeout-minutes: 4
+
+        steps:
+            - name: Upload file and trigger analysis
+              uses: JesusCotlamee/pixee-actions/analysis-input@main
+              with:
+                  FILE: ${{ github.event.inputs.file || 'sonar-report.json' }}
+                  TOOL: ${{ github.event.inputs.tool || 'sonar' }}
+                  PR_NUMBER: ${{ github.event.inputs.pr-number }}
