@@ -45,9 +45,18 @@ jobs:
                   args: >
                       -Dsonar.organization=fjpgtt
                       -Dsonar.projectKey=fjpgtt_test-sonar-cloud-integration
-            - name: Upload file and trigger analysis
-              uses: JesusCotlamee/pixee-actions/analysis-input@main
-              with:
-                  FILE: ${{ github.event.inputs.file || 'sonar-report.json' }}
-                  TOOL: ${{ github.event.inputs.tool || 'sonar' }}
-                  PR_NUMBER: ${{ github.event.inputs.pr-number }}
+            - name: SonarCloud download
+              shell: bash
+              run: |
+                  PR_NUMBER=${{ join(github.event.check_run.pull_requests.*.number, '') }}
+                  URL="https://sonarcloud.io/api/issues/search?componentKeys=fjpgtt_test-sonar-cloud-integration&pullRequest=${{ github.event.number }}"
+                  
+                  curl -v "$URL" -o sonar_issues.json
+                  cat sonar_issues.json
+
+#            - name: Upload file and trigger analysis
+#              uses: JesusCotlamee/pixee-actions/analysis-input@main
+#              with:
+#                  FILE: ${{ github.event.inputs.file || 'sonar-report.json' }}
+#                  TOOL: ${{ github.event.inputs.tool || 'sonar' }}
+#                  PR_NUMBER: ${{ github.event.inputs.pr-number }}
