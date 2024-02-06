@@ -30,10 +30,8 @@ jobs:
                   args: >
                       -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
                       -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-#            - name: Semgrep cli
-#              run: semgrep --config auto . --sarif -o semgrep.sarif
-#
-#
+            - name: Semgrep cli
+              run: semgrep --config auto . --sarif -o semgrep.sarif
 
             - name: SonarCloud download
               run: |
