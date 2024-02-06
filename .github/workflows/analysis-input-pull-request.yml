@@ -30,11 +30,21 @@ jobs:
                   args: >
                       -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
                       -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            - name: Semgrep cli
+              run: semgrep --config auto . --sarif -o semgrep.sarif
+            
+            
+
             - name: SonarCloud download
-              shell: bash
               run: |
+                  ls
                   URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
+                  ls
                   curl -v "$URL" -o sonar_issues.json
+                
+            
+                
+
             - name: Upload file and trigger analysis
               uses: JesusCotlamee/pixee-actions/analysis-input@main
               with:
