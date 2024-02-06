@@ -23,6 +23,13 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+            - name: Semgrep cli
+              run: semgrep --config auto . --sarif -o semgrep.sarif
+            - name: Semgrep upload file
+              uses: JesusCotlamee/pixee-actions/upload-file@main
+              with:
+                FILE: 'semgrep.sarif'
+                TOOL: 'semgrep'
             - name: SonarCloud Scan
               uses: sonarsource/sonarcloud-github-action@master
               env:
@@ -32,13 +39,6 @@ jobs:
                   args: >
                       -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
                       -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-            - name: Semgrep cli
-              run: semgrep --config auto . --sarif -o semgrep.sarif
-            - name: Semgrep upload file
-              uses: JesusCotlamee/pixee-actions/upload-file@main
-              with:
-                FILE: 'semgrep.sarif'
-                TOOL: 'semgrep'
             - name: SonarCloud download
               run: |
                   URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
