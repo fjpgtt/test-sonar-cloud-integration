@@ -34,18 +34,16 @@ jobs:
                       -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             - name: Semgrep cli
               run: semgrep --config auto . --sarif -o semgrep.sarif
-
+            - name: Semgrep upload file
+              uses: JesusCotlamee/pixee-actions/upload-file@main
+              with:
+                FILE: 'semgrep.sarif'
+                TOOL: 'semgrep'
             - name: SonarCloud download
               run: |
-                  ls
                   URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
-                  ls
                   curl -v "$URL" -o sonar_issues.json
-                
-            
-                
-
-            - name: Upload file and trigger analysis
+            - name: SonarCloud Upload file and trigger analysis
               uses: JesusCotlamee/pixee-actions/analysis-input@main
               with:
                   FILE: 'sonar_issues.json'
