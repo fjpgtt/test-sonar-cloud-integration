@@ -16,7 +16,9 @@ jobs:
     analysis-input:
         runs-on: ubuntu-latest
         name: Upload file and trigger analysis
-        timeout-minutes: 4
+        container:
+          image: returntocorp/semgrep:1.51.0
+        timeout-minutes: 6
 
         steps:
             - name: Checkout repository
