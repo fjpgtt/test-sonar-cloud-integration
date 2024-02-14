@@ -2,7 +2,7 @@ import java.util.logging.Logger;
 
 public class Main {
 
-    private int myIntegerValue;
+    private static int myIntegerValue;
 
     public static void main(String[] args) {
         System.out.println("Hello world!");
