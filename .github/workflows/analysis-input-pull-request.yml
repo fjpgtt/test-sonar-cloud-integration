@@ -1,8 +1,8 @@
 name: Upload file and trigger analysis - pull request
 
 on:
-    pull_request:
-        types: [opened, reopened]
+  check_run:
+    types: [ completed ]
 
 permissions:
     id-token: write
@@ -14,30 +14,31 @@ env:
 jobs:
     analysis-input:
         runs-on: ubuntu-latest
+        if: ${{ github.event.check_run.name == 'SonarCloud Code Analysis' }}
         name: Upload file and trigger analysis
-        container:
-          image: returntocorp/semgrep:1.51.0
+#        container:
+#          image: returntocorp/semgrep:1.51.0
         timeout-minutes: 6
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
-            - name: Semgrep cli
-              run: semgrep --config auto . --sarif -o semgrep.sarif
-            - name: Semgrep upload file
-              uses: JesusCotlamee/pixee-actions/upload-file@main
-              with:
-                FILE: 'semgrep.sarif'
-                TOOL: 'semgrep'
-            - name: SonarCloud Scan
-              uses: sonarsource/sonarcloud-github-action@master
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-              with:
-                  args: >
-                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
-                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+#            - name: Semgrep cli
+#              run: semgrep --config auto . --sarif -o semgrep.sarif
+#            - name: Semgrep upload file
+#              uses: JesusCotlamee/pixee-actions/upload-file@main
+#              with:
+#                FILE: 'semgrep.sarif'
+#                TOOL: 'semgrep'
+#            - name: SonarCloud Scan
+#              uses: sonarsource/sonarcloud-github-action@master
+#              env:
+#                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#              with:
+#                  args: >
+#                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+#                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             - name: SonarCloud download
               run: |
                   URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
