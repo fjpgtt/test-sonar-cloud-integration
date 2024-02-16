@@ -1,3 +1,5 @@
+package main.java.pixee;
+
 import java.util.logging.Logger;
 
 public class Main {
@@ -14,7 +16,7 @@ public class Main {
     }
 
     public void log(){
-        logger.info(String.format("Processing AutoDelegate annotations %d", myIntegerValue));
+        logger.info(String.format("Processing annotations %d", myIntegerValue));
 
     }
 
