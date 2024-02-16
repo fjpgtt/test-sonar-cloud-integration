@@ -4,12 +4,14 @@ import java.util.logging.Logger;
 
 public class Main {
 
+private static final String HELLO_WORLD = "Hello world!";
+
     private static int myIntegerValue;
 
     public static void main(String[] args) {
-        System.out.println("Hello world!");
-        System.out.println("Hello world!");
-        System.out.println("Hello world!");
+        System.out.println(HELLO_WORLD);
+        System.out.println(HELLO_WORLD);
+        System.out.println(HELLO_WORLD);
 
 
         myIntegerValue = Integer.valueOf("3").intValue();
