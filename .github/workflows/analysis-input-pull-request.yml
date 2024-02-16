@@ -32,7 +32,7 @@ jobs:
             - name: SonarCloud download
               run: |
                   URL="https://sonarcloud.io/api/issues/search?componentKeys=${{ env.SONAR_PROJECT_KEY }}&pullRequest=${{ github.event.number }}"
-                  ANALYSIS_SHA=${{ github.event.check_run.head_sha }}
+                  ANALYSIS_SHA=${{ github.event.pull_request.head.sha }}
                   echo "$ANALYSIS_SHA"
                   curl -v "$URL" -o sonar_issues.json
             - name: SonarCloud Upload file and trigger analysis
