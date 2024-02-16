@@ -13,6 +13,7 @@ env:
 
 jobs:
     analysis-input:
+        if: ${{ !startsWith(github.actor, 'pixee') }}
         runs-on: ubuntu-latest
         name: Upload file and trigger analysis
         timeout-minutes: 6
