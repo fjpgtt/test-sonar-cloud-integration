@@ -1,4 +1,4 @@
-name: Pixeebot Fix
+name: Pixeebot Fix with Semgrep
 
 on:
     pull_request:
