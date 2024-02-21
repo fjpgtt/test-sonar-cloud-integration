@@ -1,0 +1,30 @@
+name: Pixeebot Fix
+
+on:
+    pull_request:
+        types: [opened, reopened]
+
+permissions:
+    id-token: write
+
+jobs:
+    pixeebot-fix:
+        if: ${{ !startsWith(github.actor, 'pixee') }}
+        name: Pixeebot Fix
+        runs-on: ubuntu-latest
+        timeout-minutes: 6
+
+        steps:
+            - name: SonarCloud Scan
+              uses: sonarsource/sonarcloud-github-action@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              with:
+                  args: >
+                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            - name: Upload file and trigger analysis
+              uses: JesusCotlamee/pixee-actions/analysis-input@main
+              with:
+                  tool: 'sonar'
