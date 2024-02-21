@@ -7,6 +7,10 @@ on:
 permissions:
     id-token: write
 
+env:
+  SONAR_ORGANIZATION: fjpgtt
+  SONAR_PROJECT_KEY: fjpgtt_test-sonar-cloud-integration
+
 jobs:
     pixeebot-fix:
         if: ${{ !startsWith(github.actor, 'pixee') }}
