@@ -1,45 +1,30 @@
-name: Upload file and trigger analysis
+name: Pixeebot Fix
 
 on:
     pull_request:
-        types:
-            - opened
-    workflow_dispatch:
-        inputs:
-            file:
-                description: File that will be sent
-                required: true
-                default: 'sonar-report.json'
-                type: string
-            tool:
-                type: choice
-                description: >
-                    Specific property identifying the tool or service related to the uploaded file.
-                    Allowed values: 'sonar', 'codeql', 'semgrep'
-                options:
-                    - sonar
-                    - codeql
-                    - semgrep
-            pr-number:
-                description: PR number to trigger analysis for.
-                required: false
-                type: number
+        types: [opened, reopened]
+
+permissions:
+    id-token: write
 
 jobs:
-    analysis-input:
-        permissions:
-            contents: read
-            id-token: write
+    pixeebot-fix:
+        if: ${{ !startsWith(github.actor, 'pixee') }}
+        name: Pixeebot Fix
         runs-on: ubuntu-latest
-        name: Upload file and trigger analysis
-        timeout-minutes: 4
+        timeout-minutes: 6
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+            - name: SonarCloud Scan
+              uses: sonarsource/sonarcloud-github-action@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+              with:
+                  args: >
+                      -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+                      -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
             - name: Upload file and trigger analysis
               uses: JesusCotlamee/pixee-actions/analysis-input@main
               with:
-                  FILE: ${{ github.event.inputs.file || 'sonar-report.json' }}
-                  TOOL: ${{ github.event.inputs.tool || 'sonar' }}
-                  PR_NUMBER: ${{ github.event.inputs.pr-number }}
+                  tool: 'sonar'
