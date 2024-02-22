@@ -32,3 +32,4 @@ jobs:
             uses: JesusCotlamee/pixee-actions/analysis-input@main
             with:
                 tool: 'sonar'
+                sonar-token: ${{ secrets.SONAR_TOKEN }}
